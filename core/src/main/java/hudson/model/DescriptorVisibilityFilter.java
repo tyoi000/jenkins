@@ -35,7 +35,7 @@ public abstract class DescriptorVisibilityFilter implements ExtensionPoint {
      * @return true to allow the descriptor to be visible. false to hide it.
      * If any of the installed {@link DescriptorVisibilityFilter} returns false,
      * the descriptor is not shown.
-     * @since FIXME
+     * @since 2.12
      */
     public boolean filterType(@Nonnull Class<?> contextClass, @Nonnull Descriptor descriptor) {
         return true;
@@ -67,6 +67,11 @@ public abstract class DescriptorVisibilityFilter implements ExtensionPoint {
         ExtensionList<DescriptorVisibilityFilter> filters = all();
         List<T> r = new ArrayList<T>();
         Class<?> contextClass = context == null ? null : context.getClass();
+
+        if (source == null) {
+            // JENKINS-40545: throwing instead of logging so jelly can amend the actual jelly expression that failed.
+            throw new NullPointerException("Descriptor list is null for context '" + contextClass + "' in thread '" + Thread.currentThread().getName() + "'");
+        }
 
         OUTER:
         for (T d : source) {
